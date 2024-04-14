@@ -40,7 +40,7 @@ public class Hw4
         CommonCity commonCity = new CommonCity(filename);
         commonCity.FindCommonCities();
 
-        LatLon latlonders = new LatLon()
+        LatLon latlonders = new LatLon("LatLon.txt");
 
 
 
@@ -129,3 +129,39 @@ public class CommonCity : ICityProcessor
     }
 }
 
+
+public class LatLon : ICityProcessor {
+
+
+
+      string filename = "";
+      private Dictionary<string, string> zipToLatLon = new Dictionary<string, string>();
+
+      public LatLon(string FileName) {
+        this.filename = FileName; 
+        LoadData();
+    }
+       public void LoadData() {
+        string[] lines = File.ReadAllLines("zipcodes.txt");
+        foreach (string line in lines) {
+            string[] parts = line.Split('\t');
+            if (parts.Length > 7) { 
+                string zipCode = parts[1];
+                string lat = parts[6];
+                string lon = parts[7];
+                if (!zipToLatLon.ContainsKey(zipCode)) { 
+                    zipToLatLon.Add(zipCode, lat + " " + lon);
+                }
+            }
+        }
+        doProcess();
+    }
+      public void doProcess() {
+        using (StreamWriter file = new StreamWriter(filename)) {
+            foreach (KeyValuePair<string, string> entry in zipToLatLon) {
+                file.WriteLine($"{entry.Key} {entry.Value}");
+            }
+        }
+    }
+
+}
