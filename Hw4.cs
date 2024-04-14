@@ -55,6 +55,13 @@ public class Hw4
 
 
         DataProcessedEvent += () => Console.WriteLine("Data processing complete.");
+
+        // Example of using out
+        if (cityState.TryGetPopulation("New York", out int population))
+        {
+            Console.WriteLine($"Population of New York: {population}");
+        }
+        
         
 
         // ============================
@@ -87,13 +94,13 @@ public class CommonCity : IZipProcessor
 {
     private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
     string filename = "";
-
+    // Default constructor
     public CommonCity(string FileName)
     {
         this.filename = FileName;
         LoadData();
     }
-
+    // overloaded constructor
     public CommonCity(FileInfo file)
     {
         this.filename = file.FullName;
@@ -176,8 +183,8 @@ public class CommonCity : IZipProcessor
 
         return result;
     }
-    
-    public string Filename
+      // getters and setters  
+      public string Filename
     {
         get { return filename; }
         set { filename = value; }
@@ -238,6 +245,15 @@ public class LatLon : IZipProcessor
             }
         }
     }
+
+    public void UpdateLatLon(ref Dictionary<string, string> zipLatLongUpdate)
+    {
+        foreach (var entry in zipLatLong)
+        {
+            zipLatLongUpdate[entry.Key] = entry.Value;
+        }
+    }
+    // accessors and mutators
      public string Filename
     {
         get { return outputFileName; }
@@ -322,7 +338,22 @@ public class CityStates : IZipProcessor
             }
         }
     }
+
+    public bool TryGetPopulation(string city, out int population)
+    {
+        population = 0;
+        if (cityPopulations.TryGetValue(city, out int? pop))
+        {
+            if (pop.HasValue)
+            {
+                population = pop.Value;
+                return true;
+            }
+        }
+        return false;
+    }
     
+    // accessors and mutators
     public string Filename
     {
         get { return outputFileName; }
