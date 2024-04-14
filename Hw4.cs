@@ -1,7 +1,7 @@
 /* 
   Homework#4
 
-  Add your name here: ----
+  Add your name here: Nicholas McCarty
 
   You are free to create as many classes within the Hw4.cs file or across 
   multiple files as you need. However, ensure that the Hw4.cs file is the 
@@ -31,6 +31,7 @@ public class Hw4
         // Main method
         // ============================
         string filename = "commonCityNames.txt";
+        string latName = "LatLon.txt";
 
 
 
@@ -40,7 +41,7 @@ public class Hw4
         CommonCity commonCity = new CommonCity(filename);
         commonCity.FindCommonCities();
 
-        LatLon latlonders = new LatLon("LatLon.txt");
+        LatLon latlonders = new LatLon(latName);
 
 
 
@@ -130,38 +131,50 @@ public class CommonCity : ICityProcessor
 }
 
 
-public class LatLon : ICityProcessor {
+public class LatLon : ICityProcessor
+{
+    private Dictionary<string, string> zipLatLong = new Dictionary<string, string>();
+    private string outputFileName;
 
-
-
-      string filename = "";
-      private Dictionary<string, string> zipToLatLon = new Dictionary<string, string>();
-
-      public LatLon(string FileName) {
-        this.filename = FileName; 
+    public LatLon(string outputFileName)
+    {
+        this.outputFileName = outputFileName;
         LoadData();
     }
-       public void LoadData() {
+
+    public void LoadData()
+    {
+        // Load zip codes from 'zips.txt' into a HashSet for quick lookup.
+        var zipCodes = new HashSet<string>(File.ReadAllLines("zips.txt"));
+
+        // Read 'zipcodes.txt' and map each zip code to its first latitude and longitude if it's in zipCodes.
         string[] lines = File.ReadAllLines("zipcodes.txt");
-        foreach (string line in lines) {
-            string[] parts = line.Split('\t');
-            if (parts.Length > 7) { 
-                string zipCode = parts[1];
-                string lat = parts[6];
-                string lon = parts[7];
-                if (!zipToLatLon.ContainsKey(zipCode)) { 
-                    zipToLatLon.Add(zipCode, lat + " " + lon);
-                }
+        foreach (var line in lines)
+        {
+            var parts = line.Split('\t');
+            var zipCode = parts[1];
+            var lat = parts[6];
+            var lon = parts[7];
+
+            // Add the first occurrence of the latitude and longitude for the zip code in zipCodes.
+            if (zipCodes.Contains(zipCode) && !zipLatLong.ContainsKey(zipCode))
+            {
+                zipLatLong[zipCode] = lat + " " + lon;
             }
         }
+
         doProcess();
     }
-      public void doProcess() {
-        using (StreamWriter file = new StreamWriter(filename)) {
-            foreach (KeyValuePair<string, string> entry in zipToLatLon) {
-                file.WriteLine($"{entry.Key} {entry.Value}");
+
+    public void doProcess()
+    {
+        // Write the latitudes and longitudes to 'LatLon.txt'.
+        using (var file = new StreamWriter(outputFileName))
+        {
+            foreach (var entry in zipLatLong)
+            {
+                file.WriteLine($"{entry.Key}: {entry.Value}");
             }
         }
     }
-
 }
