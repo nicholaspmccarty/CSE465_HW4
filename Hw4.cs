@@ -22,6 +22,14 @@ using GCollection = System.Collections.Generic; // Alias
 
 public class Hw4
 {
+
+
+    
+    // I used ChatGPT to create this delegate.
+    public delegate void DataProcessedEventHandler();
+
+    public static event DataProcessedEventHandler DataProcessedEvent;
+
     public static void Main(string[] args)
     {
         // Capture the start time
@@ -46,7 +54,7 @@ public class Hw4
         CityStates cityState = new CityStates(citName);
 
 
-
+        DataProcessedEvent += () => Console.WriteLine("Data processing complete.");
         
 
         // ============================
@@ -231,6 +239,7 @@ public class CityStates : IZipProcessor
 {
     private HashSet<string> cities;  // Stores cities from cities.txt
     private string outputFileName;   // Filename to write the results
+    private Dictionary<string, int?> cityPopulations; // Nullable field to store city populations
 
     public CityStates(string outputFileName)
     {
@@ -251,6 +260,9 @@ public class CityStates : IZipProcessor
 
     public void doProcess()
     {
+        // Initialize city populations dictionary
+        cityPopulations = new Dictionary<string, int?>();
+
         // Read 'ZipCodes.txt' and process each line
         string[] lines = File.ReadAllLines("zipcodes.txt");
         Dictionary<string, SortedSet<string>> cityStates = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
@@ -262,6 +274,13 @@ public class CityStates : IZipProcessor
             {
                 string city = parts[3].Trim().ToUpper();  // Convert to uppercase and trim whitespace
                 string state = parts[4].Trim();
+                int population;
+
+                // Parse population if available
+                if (int.TryParse(parts[5], out population))
+                {
+                    cityPopulations[city] = population;
+                }
 
                 // Check if the city is in our loaded list of cities, then add the state to the corresponding city's SortedSet
                 if (cities.Contains(city))
@@ -275,21 +294,22 @@ public class CityStates : IZipProcessor
             }
         }
 
-        // Write the results to the output file, with each city followed by its associated states
+        // Write the results to the output file, with each city followed by its associated states and population if available
         using (StreamWriter writer = new StreamWriter(outputFileName))
         {
             foreach (var cityState in cityStates)
             {
-                writer.WriteLine($"{cityState.Key}: {string.Join(" ", cityState.Value)}");
+                string populationInfo = cityPopulations.ContainsKey(cityState.Key) ? $" (Population: {cityPopulations[cityState.Key]})" : "";
+                writer.WriteLine($"{cityState.Key}{populationInfo}: {string.Join(" ", cityState.Value)}");
             }
         }
     }
-     public string Filename
+    
+    public string Filename
     {
         get { return outputFileName; }
         set { outputFileName = value; }
     }
-    
 }
 
 // Overriding a method example.
