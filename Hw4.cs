@@ -159,6 +159,7 @@ public class CommonCity : IZipProcessor
             }
         }
 
+        // ChatGPT method.
         var commonCities = stateCities.Values
             .Skip(1)
             .Aggregate(
@@ -179,6 +180,7 @@ public class CommonCity : IZipProcessor
      * Returns:
      *  A new CommonCity object containing merged data from both input objects.
      */
+     // CHATGPT Method
     public static CommonCity operator +(CommonCity a, CommonCity b)
     {
         CommonCity result = new CommonCity("merged_common_cities.txt");
@@ -362,6 +364,8 @@ public class CityStates : IZipProcessor
 
         // Read 'ZipCodes.txt' and process each line
         string[] lines = File.ReadAllLines("zipcodes.txt");
+        
+        // I used ChatGPT for this comparison and the following for each loop.
         Dictionary<string, SortedSet<string>> cityStates = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (string line in lines)
@@ -412,6 +416,8 @@ public class CityStates : IZipProcessor
      * Returns:
      *  True if the population was found, otherwise false.
      */
+
+     // CHATGPT METHOD
     public bool TryGetPopulation(string city, out int population)
     {
         population = 0;
