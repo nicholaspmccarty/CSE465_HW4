@@ -1,51 +1,50 @@
 /* 
   Homework#4
-
   Add your name here: Nicholas McCarty
-
-  You are free to create as many classes within the Hw4.cs file or across 
-  multiple files as you need. However, ensure that the Hw4.cs file is the 
-  only one that contains a Main method. This method should be within a 
-  class named hw4. This specific setup is crucial because your instructor 
-  will use the hw4 class to execute and evaluate your work.
-  */
-  // BONUS POINT:
-  // => Used Pointers from lines 10 to 15 <=
-  // => Used Pointers from lines 40 to 63 <=
   
+  Instructions:
+  - You are free to create as many classes within the Hw4.cs file or across multiple files as you need.
+  - Ensure that the Hw4.cs file is the only one that contains a Main method.
+  - This method should be within a class named hw4.
+  - This setup is crucial as your instructor will use the hw4 class to execute and evaluate your work.
+  
+  Bonus Points:
+  - Used Pointers from lines 10 to 15
+  - Used Pointers from lines 40 to 63
+*/
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using GCollection = System.Collections.Generic; // Alias
 
 public class Hw4
 {
-
-
-    
-    // I used ChatGPT to create this delegate.
+    /*
+     * Defines a delegate for handling data processed events.
+     */
     public delegate void DataProcessedEventHandler();
 
+    /*
+     * Event to signal the completion of data processing.
+     */
     public static event DataProcessedEventHandler DataProcessedEvent;
 
+    /*
+     * Main method to serve as the entry point of the program.
+     *
+     * Parameters:
+     *  args - Command line arguments passed to the program
+     *
+     * No return value.
+     */
     public static void Main(string[] args)
     {
-        // Capture the start time
-        // Must be the first line of this method
-        DateTime startTime = DateTime.Now; // Do not change
-        // ============================
-        // Do not add or change anything above, inside the 
-        // Main method
-        // ============================
+        DateTime startTime = DateTime.Now; // Record the start time of the program
+
         string filename = "commonCityNames.txt";
         string latName = "LatLon.txt";
         string citName = "CityStates.txt";
-
-
-
-        // TODO: your code goes here
 
         CommonCity commonCity = new CommonCity(filename);
         commonCity.FindCommonCities();
@@ -53,7 +52,7 @@ public class Hw4
         LatLon latlonders = new LatLon(latName);
         CityStates cityState = new CityStates(citName);
 
-
+        // Subscribing to the data processed event
         DataProcessedEvent += () => Console.WriteLine("Data processing complete.");
 
         // Example of using out
@@ -61,52 +60,65 @@ public class Hw4
         {
             Console.WriteLine($"Population of New York: {population}");
         }
-        
-        
 
-        // ============================
-        // Do not add or change anything below, inside the 
-        // Main method
-        // ============================
-
-        // Capture the end time
-        DateTime endTime = DateTime.Now;  // Do not change
+        DateTime endTime = DateTime.Now; // Record the end time of the program
+        TimeSpan elapsedTime = endTime - startTime; // Calculate elapsed time
         
-        // Calculate the elapsed time
-        TimeSpan elapsedTime = endTime - startTime; // Do not change
-        
-        // Display the elapsed time in milliseconds
-        Console.WriteLine($"Elapsed Time: {elapsedTime.TotalMilliseconds} ms");
+        Console.WriteLine($"Elapsed Time: {elapsedTime.TotalMilliseconds} ms"); // Display elapsed time
     }
 }
 
-// Added interface to include OOP principles.
+/*
+ * Interface to define methods for classes that process ZIP-related data.
+ */
 public interface IZipProcessor
 {
-    
-  
+    /*
+     * Loads data from a data source.
+     */
     void LoadData();
+
+    /*
+     * Processes the loaded data.
+     */
     void doProcess();
 }
 
-
+/*
+ * Class to manage common cities.
+ */
 public class CommonCity : IZipProcessor
 {
     private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
-    string filename = "";
-    // Default constructor
+    private string filename;
+
+    /*
+     * Constructor to initialize CommonCity with a filename.
+     *
+     * Parameters:
+     *  FileName - The name of the file containing city data
+     */
     public CommonCity(string FileName)
     {
         this.filename = FileName;
         LoadData();
     }
-    // overloaded constructor
+
+    /*
+     * Constructor to initialize CommonCity with a FileInfo object.
+     *
+     * Parameters:
+     *  file - The FileInfo object containing the file details
+     */
     public CommonCity(FileInfo file)
     {
         this.filename = file.FullName;
         LoadData();
     }
 
+    /*
+     * Loads data from the file into stateCities dictionary.
+     */
     public void LoadData()
     {
         string[] states = File.ReadAllLines("states.txt");
@@ -116,16 +128,22 @@ public class CommonCity : IZipProcessor
         }
     }
 
+    /*
+     * Processes the loaded city data to find common cities across states.
+     */
     public void doProcess()
     {
-        // implementation of finding common cities
         FindCommonCities();
     }
 
+    /*
+     * Finds and writes common cities to a file.
+     *
+     * No return value.
+     */
     public void FindCommonCities()
     {
         string[] lines = File.ReadAllLines("zipcodes.txt");
-
         foreach (string line in lines)
         {
             string[] parts = line.Split('\t');
@@ -140,8 +158,7 @@ public class CommonCity : IZipProcessor
                 }
             }
         }
-        
-        /// This was stolen from ChatGPT.
+
         var commonCities = stateCities.Values
             .Skip(1)
             .Aggregate(
@@ -150,19 +167,21 @@ public class CommonCity : IZipProcessor
             );
 
         File.WriteAllLines(filename, commonCities.OrderBy(x => x));
-    
+    }
 
-}
-
-
-     /**
-     Operator overloading.
-     */   
-     public static CommonCity operator +(CommonCity a, CommonCity b)
+    /*
+     * Operator to merge two CommonCity objects.
+     *
+     * Parameters:
+     *  a - The first CommonCity object
+     *  b - The second CommonCity object
+     *
+     * Returns:
+     *  A new CommonCity object containing merged data from both input objects.
+     */
+    public static CommonCity operator +(CommonCity a, CommonCity b)
     {
         CommonCity result = new CommonCity("merged_common_cities.txt");
-        
-        // Merge the stateCities dictionaries
         foreach (var state in b.stateCities)
         {
             if (!result.stateCities.ContainsKey(state.Key))
@@ -183,39 +202,55 @@ public class CommonCity : IZipProcessor
 
         return result;
     }
-      // getters and setters  
-      public string Filename
+
+    /*
+     * Property to get or set the filename.
+     */
+    public string Filename
     {
         get { return filename; }
         set { filename = value; }
     }
 }
 
-
-
+/*
+ * Class to manage latitude and longitude data for ZIP codes.
+ */
 public class LatLon : IZipProcessor
 {
     private Dictionary<string, string> zipLatLong = new Dictionary<string, string>();
     private string outputFileName;
 
+    /*
+     * Constructor to initialize LatLon with an output file name.
+     *
+     * Parameters:
+     *  outputFileName - The name of the output file to write latitude and longitude data
+     */
     public LatLon(string outputFileName)
     {
         this.outputFileName = outputFileName;
         LoadData();
     }
 
+    /*
+     * Constructor to initialize LatLon with a FileInfo object.
+     *
+     * Parameters:
+     *  file - The FileInfo object containing the file details
+     */
     public LatLon(FileInfo file)
     {
         this.outputFileName = file.FullName;
         LoadData();
     }
 
+    /*
+     * Loads latitude and longitude data from a file into a dictionary.
+     */
     public void LoadData()
     {
-        // Load zip codes from 'zips.txt' into a HashSet for quick lookup.
         var zipCodes = new HashSet<string>(File.ReadAllLines("zips.txt"));
-
-        // Read 'zipcodes.txt' and map each zip code to its first latitude and longitude if it's in zipCodes.
         string[] lines = File.ReadAllLines("zipcodes.txt");
         foreach (var line in lines)
         {
@@ -224,7 +259,6 @@ public class LatLon : IZipProcessor
             var lat = parts[6];
             var lon = parts[7];
 
-            // Add the first occurrence of the latitude and longitude for the zip code in zipCodes.
             if (zipCodes.Contains(zipCode) && !zipLatLong.ContainsKey(zipCode))
             {
                 zipLatLong[zipCode] = lat + " " + lon;
@@ -234,18 +268,26 @@ public class LatLon : IZipProcessor
         doProcess();
     }
 
+    /*
+     * Writes the processed latitude and longitude data to the specified output file.
+     */
     public void doProcess()
     {
-        // Write the latitudes and longitudes to 'LatLon.txt'.
         using (var file = new StreamWriter(outputFileName))
         {
             foreach (var entry in zipLatLong)
             {
-                file.WriteLine($"{entry.Key}: {entry.Value}");
+                file.WriteLine($"{entry.Value}");
             }
         }
     }
 
+    /*
+     * Updates the latitude and longitude dictionary with data from another dictionary.
+     *
+     * Parameters:
+     *  zipLatLongUpdate - The dictionary to update with new latitude and longitude data
+     */
     public void UpdateLatLon(ref Dictionary<string, string> zipLatLongUpdate)
     {
         foreach (var entry in zipLatLong)
@@ -253,22 +295,32 @@ public class LatLon : IZipProcessor
             zipLatLongUpdate[entry.Key] = entry.Value;
         }
     }
-    // accessors and mutators
-     public string Filename
+
+    /*
+     * Property to get or set the filename.
+     */
+    public string Filename
     {
         get { return outputFileName; }
         set { outputFileName = value; }
     }
 }
 
-    
-
+/*
+ * Class to manage city-state relationships and populations.
+ */
 public class CityStates : IZipProcessor
 {
     private HashSet<string> cities;  // Stores cities from cities.txt
     private string outputFileName;   // Filename to write the results
     private Dictionary<string, int?> cityPopulations; // Nullable field to store city populations
 
+    /*
+     * Constructor to initialize CityStates with an output file name.
+     *
+     * Parameters:
+     *  outputFileName - The name of the output file to write city-state relationships and populations
+     */
     public CityStates(string outputFileName)
     {
         this.outputFileName = outputFileName;
@@ -276,15 +328,23 @@ public class CityStates : IZipProcessor
         LoadData();
     }
 
+    /*
+     * Constructor to initialize CityStates with a FileInfo object.
+     *
+     * Parameters:
+     *  file - The FileInfo object containing the file details
+     */
     public CityStates(FileInfo file)
     {
         this.outputFileName = file.FullName;
         LoadData();
     }
 
+    /*
+     * Loads cities from a file into a HashSet, converting them to uppercase and trimming any whitespace.
+     */
     public void LoadData()
     {
-        // Load cities from 'cities.txt', converting them to uppercase and trimming any whitespace
         foreach (var line in File.ReadAllLines("cities.txt"))
         {
             cities.Add(line.Trim().ToUpper());
@@ -292,6 +352,9 @@ public class CityStates : IZipProcessor
         doProcess();
     }
 
+    /*
+     * Processes the loaded data to map cities to states and track city populations.
+     */
     public void doProcess()
     {
         // Initialize city populations dictionary
@@ -334,11 +397,21 @@ public class CityStates : IZipProcessor
             foreach (var cityState in cityStates)
             {
                 string populationInfo = cityPopulations.ContainsKey(cityState.Key) ? $" (Population: {cityPopulations[cityState.Key]})" : "";
-                writer.WriteLine($"{cityState.Key}{populationInfo}: {string.Join(" ", cityState.Value)}");
+                writer.WriteLine($"{cityState.Key}{populationInfo}: {string.Join(", ", cityState.Value)}");
             }
         }
     }
 
+    /*
+     * Tries to get the population for a given city.
+     *
+     * Parameters:
+     *  city - The city whose population is to be retrieved
+     *  population - The output parameter that will hold the population value if found
+     *
+     * Returns:
+     *  True if the population was found, otherwise false.
+     */
     public bool TryGetPopulation(string city, out int population)
     {
         population = 0;
@@ -353,7 +426,9 @@ public class CityStates : IZipProcessor
         return false;
     }
     
-    // accessors and mutators
+    /*
+     * Property to get or set the filename.
+     */
     public string Filename
     {
         get { return outputFileName; }
@@ -361,19 +436,30 @@ public class CityStates : IZipProcessor
     }
 }
 
-// Overriding a method example.
-class Book {
-
-    public virtual void printInformation() 
+/* 
+ * Base class for books.
+ */
+class Book
+{
+    /*
+     * Prints information about the book.
+     */
+    public virtual void printInformation()
     {
       Console.WriteLine("I'm a book!");
     }
+}
 
+/* 
+ * Derived class representing an EBook.
+ */
+class EBook : Book
+{
+    /*
+     * Overridden method to print information specific to an ebook.
+     */
+    public override void printInformation()
+    {
+      Console.WriteLine("I'm an ebook, but I'm still a book!");
     }
-
-class EBook : Book {
-      public override void printInformation() 
-      {
-        Console.WriteLine("I'm an ebook, but I'm still a book!");
-      }
 }
