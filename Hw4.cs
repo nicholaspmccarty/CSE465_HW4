@@ -94,6 +94,12 @@ public class CommonCity : IZipProcessor
         LoadData();
     }
 
+    public CommonCity(FileInfo file)
+    {
+        this.filename = file.FullName;
+        LoadData();
+    }
+
     public void LoadData()
     {
         string[] states = File.ReadAllLines("states.txt");
@@ -191,6 +197,12 @@ public class LatLon : IZipProcessor
         LoadData();
     }
 
+    public LatLon(FileInfo file)
+    {
+        this.outputFileName = file.FullName;
+        LoadData();
+    }
+
     public void LoadData()
     {
         // Load zip codes from 'zips.txt' into a HashSet for quick lookup.
@@ -245,6 +257,12 @@ public class CityStates : IZipProcessor
     {
         this.outputFileName = outputFileName;
         cities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);  // Ignore case when comparing strings
+        LoadData();
+    }
+
+    public CityStates(FileInfo file)
+    {
+        this.outputFileName = file.FullName;
         LoadData();
     }
 
