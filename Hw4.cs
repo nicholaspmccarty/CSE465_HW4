@@ -15,6 +15,9 @@
   
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 public class Hw4
 {
@@ -27,13 +30,15 @@ public class Hw4
         // Do not add or change anything above, inside the 
         // Main method
         // ============================
-
+        string filename = "commonCityNames.txt";
 
 
 
 
         // TODO: your code goes here
 
+        CommonCity commonCity = new CommonCity();
+        commonCity.FindCommonCities();
 
 
 
@@ -52,5 +57,53 @@ public class Hw4
         
         // Display the elapsed time in milliseconds
         Console.WriteLine($"Elapsed Time: {elapsedTime.TotalMilliseconds} ms");
+    }
+}
+
+public class CommonCity
+{
+    private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
+
+    public CommonCity()
+    {
+        LoadStates();
+    }
+
+    private void LoadStates()
+    {
+        string[] states = File.ReadAllLines("states.txt");
+        foreach (string state in states)
+        {
+            stateCities[state.Trim()] = new HashSet<string>();
+        }
+    }
+
+    public void FindCommonCities()
+    {
+        string[] lines = File.ReadAllLines("zipcodes.txt");
+
+        foreach (string line in lines)
+        {
+            string[] parts = line.Split('\t');
+            if (parts.Length > 4)
+            {
+                string city = parts[3];
+                string state = parts[4];
+
+                if (stateCities.ContainsKey(state))
+                {
+                    stateCities[state].Add(city);
+                }
+            }
+        }
+
+        var commonCities = stateCities.Values
+            .Skip(1)
+            .Aggregate(
+                new HashSet<string>(stateCities.Values.First()),
+                (h, e) => { h.IntersectWith(e); return h; }
+            );
+
+        File.WriteAllLines("CommonCityNames.txt", commonCities.OrderBy(x => x));
     }
 }
