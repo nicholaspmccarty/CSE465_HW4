@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GCollection = System.Collections.Generic; // Alias
 
 public class Hw4
 {
@@ -131,7 +132,38 @@ public class CommonCity : IZipProcessor
     
 
 }
- public string Filename
+
+
+     /**
+     Operator overloading.
+     */   
+     public static CommonCity operator +(CommonCity a, CommonCity b)
+    {
+        CommonCity result = new CommonCity("merged_common_cities.txt");
+        
+        // Merge the stateCities dictionaries
+        foreach (var state in b.stateCities)
+        {
+            if (!result.stateCities.ContainsKey(state.Key))
+                result.stateCities[state.Key] = new HashSet<string>();
+
+            foreach (var city in state.Value)
+                result.stateCities[state.Key].Add(city);
+        }
+
+        foreach (var state in a.stateCities)
+        {
+            if (!result.stateCities.ContainsKey(state.Key))
+                result.stateCities[state.Key] = new HashSet<string>();
+
+            foreach (var city in state.Value)
+                result.stateCities[state.Key].Add(city);
+        }
+
+        return result;
+    }
+    
+    public string Filename
     {
         get { return filename; }
         set { filename = value; }
@@ -258,4 +290,21 @@ public class CityStates : IZipProcessor
         set { outputFileName = value; }
     }
     
+}
+
+// Overriding a method example.
+class Book {
+
+    public virtual void printInformation() 
+    {
+      Console.WriteLine("I'm a book!");
+    }
+
+    }
+
+class EBook : Book {
+      public override void printInformation() 
+      {
+        Console.WriteLine("I'm an ebook, but I'm still a book!");
+      }
 }
