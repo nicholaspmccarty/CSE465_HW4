@@ -32,7 +32,7 @@ public class Hw4
         // ============================
         string filename = "commonCityNames.txt";
         string latName = "LatLon.txt";
-
+        string citName = "CityStates.txt";
 
 
 
@@ -42,6 +42,7 @@ public class Hw4
         commonCity.FindCommonCities();
 
         LatLon latlonders = new LatLon(latName);
+        CityStates cityState = new CityStates(citName);
 
 
 
@@ -64,7 +65,7 @@ public class Hw4
 }
 
 // Added interface to include OOP principles.
-public interface ICityProcessor
+public interface IZipProcessor
 {
     
   
@@ -73,7 +74,7 @@ public interface ICityProcessor
 }
 
 
-public class CommonCity : ICityProcessor
+public class CommonCity : IZipProcessor
 {
     private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
     string filename = "";
@@ -127,11 +128,14 @@ public class CommonCity : ICityProcessor
             );
 
         File.WriteAllLines(filename, commonCities.OrderBy(x => x));
-    }
+    
+
+}
 }
 
 
-public class LatLon : ICityProcessor
+
+public class LatLon : IZipProcessor
 {
     private Dictionary<string, string> zipLatLong = new Dictionary<string, string>();
     private string outputFileName;
@@ -177,4 +181,67 @@ public class LatLon : ICityProcessor
             }
         }
     }
+}
+
+    
+
+public class CityStates : IZipProcessor
+{
+    private HashSet<string> cities;  // Stores cities from cities.txt
+    private string outputFileName;   // Filename to write the results
+
+    public CityStates(string outputFileName)
+    {
+        this.outputFileName = outputFileName;
+        cities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);  // Ignore case when comparing strings
+        LoadData();
+    }
+
+    public void LoadData()
+    {
+        // Load cities from 'cities.txt', converting them to uppercase and trimming any whitespace
+        foreach (var line in File.ReadAllLines("cities.txt"))
+        {
+            cities.Add(line.Trim().ToUpper());
+        }
+        doProcess();
+    }
+
+    public void doProcess()
+    {
+        // Read 'ZipCodes.txt' and process each line
+        string[] lines = File.ReadAllLines("zipcodes.txt");
+        Dictionary<string, SortedSet<string>> cityStates = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string line in lines)
+        {
+            string[] parts = line.Split('\t');
+            if (parts.Length > 4)
+            {
+                string city = parts[3].Trim().ToUpper();  // Convert to uppercase and trim whitespace
+                string state = parts[4].Trim();
+
+                // Check if the city is in our loaded list of cities, then add the state to the corresponding city's SortedSet
+                if (cities.Contains(city))
+                {
+                    if (!cityStates.ContainsKey(city))
+                    {
+                        cityStates[city] = new SortedSet<string>();
+                    }
+                    cityStates[city].Add(state);
+                }
+            }
+        }
+
+        // Write the results to the output file, with each city followed by its associated states
+        using (StreamWriter writer = new StreamWriter(outputFileName))
+        {
+            foreach (var cityState in cityStates)
+            {
+                writer.WriteLine($"{cityState.Key}: {string.Join(" ", cityState.Value)}");
+            }
+        }
+    }
+
+    
 }
