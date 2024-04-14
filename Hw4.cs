@@ -60,22 +60,36 @@ public class Hw4
     }
 }
 
-public class CommonCity
+// Added interface to include OOP principles.
+public interface ICityProcessor
+{
+    void LoadData();
+    void ProcessCities();
+}
+
+
+public class CommonCity : ICityProcessor
 {
     private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
 
     public CommonCity()
     {
-        LoadStates();
+        LoadData();
     }
 
-    private void LoadStates()
+    public void LoadData()
     {
         string[] states = File.ReadAllLines("states.txt");
         foreach (string state in states)
         {
             stateCities[state.Trim()] = new HashSet<string>();
         }
+    }
+
+    public void ProcessCities()
+    {
+        // implementation of finding common cities
+        FindCommonCities();
     }
 
     public void FindCommonCities()
@@ -96,7 +110,8 @@ public class CommonCity
                 }
             }
         }
-
+        
+        /// This was stolen from ChatGPT.
         var commonCities = stateCities.Values
             .Skip(1)
             .Aggregate(
