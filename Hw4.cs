@@ -37,8 +37,10 @@ public class Hw4
 
         // TODO: your code goes here
 
-        CommonCity commonCity = new CommonCity();
+        CommonCity commonCity = new CommonCity(filename);
         commonCity.FindCommonCities();
+
+        LatLon latlonders = new LatLon()
 
 
 
@@ -63,17 +65,21 @@ public class Hw4
 // Added interface to include OOP principles.
 public interface ICityProcessor
 {
+    
+  
     void LoadData();
-    void ProcessCities();
+    void doProcess();
 }
 
 
 public class CommonCity : ICityProcessor
 {
     private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
+    string filename = "";
 
-    public CommonCity()
+    public CommonCity(string FileName)
     {
+        this.filename = FileName;
         LoadData();
     }
 
@@ -86,7 +92,7 @@ public class CommonCity : ICityProcessor
         }
     }
 
-    public void ProcessCities()
+    public void doProcess()
     {
         // implementation of finding common cities
         FindCommonCities();
@@ -119,6 +125,7 @@ public class CommonCity : ICityProcessor
                 (h, e) => { h.IntersectWith(e); return h; }
             );
 
-        File.WriteAllLines("CommonCityNames.txt", commonCities.OrderBy(x => x));
+        File.WriteAllLines(filename, commonCities.OrderBy(x => x));
     }
 }
+
