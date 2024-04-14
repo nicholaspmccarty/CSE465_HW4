@@ -131,6 +131,11 @@ public class CommonCity : IZipProcessor
     
 
 }
+ public string Filename
+    {
+        get { return filename; }
+        set { filename = value; }
+    }
 }
 
 
@@ -180,6 +185,11 @@ public class LatLon : IZipProcessor
                 file.WriteLine($"{entry.Key}: {entry.Value}");
             }
         }
+    }
+     public string Filename
+    {
+        get { return outputFileName; }
+        set { outputFileName = value; }
     }
 }
 
@@ -242,6 +252,10 @@ public class CityStates : IZipProcessor
             }
         }
     }
-
+     public string Filename
+    {
+        get { return outputFileName; }
+        set { outputFileName = value; }
+    }
     
 }
