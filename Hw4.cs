@@ -210,6 +210,7 @@ public unsafe class CommonCity : IZipProcessor
      */
     public string Filename
     {
+        /* Using pointers in getters and setters allows direct memory manipulation for better performance and low-level data control in unsafe contexts. */
         get
         {
             fixed (char* ptr = filename)
@@ -316,6 +317,7 @@ public unsafe class LatLon : IZipProcessor
      */
 public string Filename
     {
+        //  Using pointers in getters and setters allows direct memory manipulation for better performance and low-level data control in unsafe contexts. 
         get
         {
             fixed (char* ptr = outputFileName)
