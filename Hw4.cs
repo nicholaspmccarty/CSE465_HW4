@@ -9,8 +9,8 @@
   - This setup is crucial as your instructor will use the hw4 class to execute and evaluate your work.
   
   Bonus Points:
-  - Used Pointers from lines 10 to 15
-  - Used Pointers from lines 40 to 63
+  - Used Pointers from lines 211 to 226
+  - Used Pointers from lines 317 to 332
 */
 
 using System;
@@ -87,7 +87,7 @@ public interface IZipProcessor
 /*
  * Class to manage common cities.
  */
-public class CommonCity : IZipProcessor
+public unsafe class CommonCity : IZipProcessor
 {
     private Dictionary<string, HashSet<string>> stateCities = new Dictionary<string, HashSet<string>>();
     private string filename;
@@ -210,15 +210,28 @@ public class CommonCity : IZipProcessor
      */
     public string Filename
     {
-        get { return filename; }
-        set { filename = value; }
+        get
+        {
+            fixed (char* ptr = filename)
+            {
+                return new string(ptr);
+            }
+        }
+        set
+        {
+            fixed (char* ptr = value)
+            {
+                filename = new string(ptr);
+            }
+        }
     }
 }
+
 
 /*
  * Class to manage latitude and longitude data for ZIP codes.
  */
-public class LatLon : IZipProcessor
+public unsafe class LatLon : IZipProcessor
 {
     private Dictionary<string, string> zipLatLong = new Dictionary<string, string>();
     private string outputFileName;
@@ -301,10 +314,22 @@ public class LatLon : IZipProcessor
     /*
      * Property to get or set the filename.
      */
-    public string Filename
+public string Filename
     {
-        get { return outputFileName; }
-        set { outputFileName = value; }
+        get
+        {
+            fixed (char* ptr = outputFileName)
+            {
+                return new string(ptr);
+            }
+        }
+        set
+        {
+            fixed (char* ptr = value)
+            {
+                outputFileName = new string(ptr);
+            }
+        }
     }
 }
 
